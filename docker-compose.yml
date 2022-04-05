@@ -1,8 +1,8 @@
 version: "3.7"
 services:
   sentilo-server:
-   #   image: luismariotti1/sentilo
-     build: sentilo
+     image: luismariotti1/sentilo
+    #  build: sentilo
      container_name: sentilo_servers
      depends_on:
       - "mongo-server"
@@ -12,6 +12,7 @@ services:
         - 8080:8080
   mongo-server:
      image: luismariotti1/sentilo-mongo
+    #  build: mongo
      container_name: sentilo_mongo
      ports:
         - 27017:27017
@@ -21,9 +22,9 @@ services:
      command: redis-server --requirepass sentilo
      ports:
        - 6379:6379
-  opentsdb-server:
-    build: opentsdb
-    image: luismariotti1/sentilo-opentsdb
-    container_name: sentilo_opentsdb
-    ports:
-      - 4242:4242
+  # opentsdb-server:
+  #   build: opentsdb
+  #   image: luismariotti1/sentilo-opentsdb
+  #   container_name: sentilo_opentsdb
+  #   ports:
+  #     - 4242:4242

@@ -39,6 +39,4 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 CMD [ "/usr/bin/supervisord" ]
 
-# EXPOSE 2181
-# EXPOSE 16010
 EXPOSE 4242

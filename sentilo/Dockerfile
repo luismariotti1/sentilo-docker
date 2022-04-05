@@ -5,6 +5,7 @@ USER root
 RUN mkdir /sentilo	
 WORKDIR /sentilo
 
+# install packages
 RUN apt-get clean && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -49,9 +50,8 @@ RUN chmod +x sentilo-platform/sentilo-platform-server/target/appassembler/bin/se
 # supervisor conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# ENTRYPOINT ["/usr/bin/supervisord"]
 CMD [ "/usr/bin/supervisord" ]
 
-# ENTRYPOINT ["/usr/bin/supervisord"]
-    
 EXPOSE 8080
 EXPOSE 8081
