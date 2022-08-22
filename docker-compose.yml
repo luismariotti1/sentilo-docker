@@ -1,8 +1,8 @@
 version: "3.7"
 services:
   sentilo-server:
-     image: luismariotti1/sentilo
-    #  build: sentilo
+    #  image: luismariotti1/sentilo
+     build: sentilo
      container_name: sentilo_servers
      depends_on:
       - "mongo-server"
@@ -29,8 +29,8 @@ services:
     ports:
       - 4242:4242
   elasticsearch-server:
-    image: elasticsearch:8.2.0
-    container_name: sentilo_elasticsearch
+    image: elasticsearch:7.17.5
+    container_name: elasticsearch
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
@@ -50,11 +50,11 @@ services:
       - '9200:9200'
       - '9300:9300'
   kibana-server:
-    container_name: sentilo_kibana
-    image: kibana:8.2.0
+    container_name: kibana
+    image: kibana:7.17.5
     ports:
       - 5601:5601
     depends_on:
-      - elasticsearch-server    
+      - elasticsearch-server
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://elasticsearch-server:9200
