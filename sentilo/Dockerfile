@@ -1,4 +1,6 @@
-FROM tomcat:9.0.58-jdk8-temurin-focal
+FROM maven:latest 
+
+FROM tomcat:9.0.58-jdk8-temurin-focal as prod
 LABEL maintainer="luismariotti1"
 USER root
 
@@ -47,7 +49,7 @@ RUN sed -i "s/opentsdb.url=http:\/\/127.0.0.1:4242/opentsdb.url=http:\/\/opentsd
 #configure elasticsearch for docker network
 RUN sed -i "s/.*catalog.mongodb.host=.*/catalog.mongodb.host=mongo-server/" sentilo-agent-activity-monitor/src/main/resources/properties/catalog-config.properties
 RUN sed -i "s/.*jedis.pool.host=.*/jedis.pool.host=redis-server/" sentilo-agent-activity-monitor/src/main/resources/properties/jedis-config.properties
-RUN sed -i "s/elasticsearch.url=http:\/\/localhost:9200/elasticsearch.url=http:\/\/elasticsearch-server:9200/g" sentilo-agent-activity-monitor/src/main/resources/properties/monitor-config.properties
+RUN sed -i "s/elasticsearch.url=http:\/\/localhost:9200/elasticsearch.url=https:\/\/es01:9200/g" sentilo-agent-activity-monitor/src/main/resources/properties/monitor-config.properties
 
 # execute permission for sentilo server
 RUN chmod +x sentilo-platform/sentilo-platform-server/target/appassembler/bin/sentilo-server
