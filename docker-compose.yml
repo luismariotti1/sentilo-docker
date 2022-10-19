@@ -2,26 +2,31 @@ version: "3.7"
 services:
   sentilo-server:
     #  image: luismariotti1/sentilo
-     build: sentilo
-     container_name: sentilo_servers
-     depends_on:
+    build: sentilo
+    container_name: sentilo_servers
+    depends_on:
       - "mongo-server"
       - "redis-server"
-  
+
   mongo-server:
-     image: luismariotti1/sentilo-mongo
+    image: luismariotti1/sentilo-mongo
     #  build: mongo
-     container_name: sentilo_mongo
-     ports:
-        - 27017:27017
-  
+    container_name: sentilo_mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
+
   redis-server:
-     image: redis:4.0.11
-     container_name: sentilo_redis
-     command: redis-server --requirepass sentilo
-     ports:
-       - 6379:6379
-  
+    image: redis:4.0.11
+    container_name: sentilo_redis
+    command: redis-server --requirepass sentilo
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+
   # opentsdb-server:
   #   build: opentsdb
   #   image: luismariotti1/sentilo-opentsdb
@@ -41,57 +46,73 @@ services:
       - ./certs/:/etc/nginx/certs/
     depends_on:
       - "sentilo-server"
+    
+  es01:
+    container_name: es01
+    image: elasticsearch:7.17.5
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources: 
+        limits: 
+          cpus: "0.50"  # Use at most 50% of one CPU core
+          memory: 2000M  # Use at most 2 GB of RAM
+    ports:
+      - '9200:9200'
+    environment:
+      - node.name=es01
+      - discovery.seed_hosts=es01
+      - cluster.initial_master_nodes=es01
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD 
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=true
+
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca-cert.pem
+      - xpack.security.http.ssl.certificate=$CERTS_DIR/server/server-cert.pem
+      - xpack.security.http.ssl.key=$CERTS_DIR/server/server-key.pem
+
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.verification_mode=certificate 
+      - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca-cert.pem
+      - xpack.security.transport.ssl.certificate=$CERTS_DIR/server/server-cert.pem
+      - xpack.security.transport.ssl.key=$CERTS_DIR/server/server-key.pem     
+    volumes:
+      - "es01_data:/usr/share/elasticsearch/data"
+      - "./certs:$CERTS_DIR"
+    healthcheck:
+      test: curl --cacert $CERTS_DIR/ca/ca.crt -s https://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana-server:
+    image: kibana:7.17.5
+    container_name: kibana
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=https://es01:9200
+      - XPACK_SECURITY_ENABLED=true
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=$ELASTIC_PASSWORD
+      - ELASTICSEARCH_SSL_VERIFICATIONMODE=certificate
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/run/secrets/ca/ca-cert.pem
+      - SERVER_SSL_ENABLED=true
+      - SERVER_SSL_CERTIFICATEAUTHORITIES=/run/secrets/ca/ca-cert.pem
+      - SERVER_SSL_CERTIFICATE=/run/secrets/server/server-cert.pem
+      - SERVER_SSL_KEY=/run/secrets/server/server-key.pem
+    volumes:
+      - "./certs:/run/secrets/"
 
 volumes:
-  nginx-proxy:
+  mongo_data:
+  mongo_config:
+  redis_data:
+  es01_data:
     driver: local
-  
-#   es01:
-#     container_name: es01
-#     image: elasticsearch:7.17.5
-#     environment:
-#       - node.name=es01
-#       - discovery.seed_hosts=es01
-#       - cluster.initial_master_nodes=es01
-#       - ELASTIC_PASSWORD=$ELASTIC_PASSWORD 
-#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#       - xpack.security.enabled=true
-      
-#       - xpack.security.http.ssl.enabled=true
-#       - xpack.security.http.ssl.key=$CERTS_DIR/es01/es01.key
-#       - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
-#       - xpack.security.http.ssl.certificate=$CERTS_DIR/es01/es01.crt
-      
-#       - xpack.security.transport.ssl.enabled=true
-#       - xpack.security.transport.ssl.verification_mode=certificate 
-#       - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
-#       - xpack.security.transport.ssl.certificate=$CERTS_DIR/es01/es01.crt
-#       - xpack.security.transport.ssl.key=$CERTS_DIR/es01/es01.key
-    
-#     volumes: ['data01:/usr/share/elasticsearch/data', './es/certs:$CERTS_DIR']
-#     ports:
-#       - 9200:9200
-#     healthcheck:
-#       test: curl --cacert $CERTS_DIR/ca/ca.crt -s https://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
-#       interval: 30s
-#       timeout: 10s
-#       retries: 5
-  
-#   wait_until_ready:
-#     image: elasticsearch:7.17.5
-#     command: /usr/bin/true
-#     depends_on: {"es01": {"condition": "service_healthy"}}
-
-# volumes: {"data01", "certs"}
-
- 
- 
-  # kibana-server:
-  #   container_name: kibana
-  #   image: kibana:7.17.5
-  #   ports:
-  #     - 5601:5601
-  #   depends_on:
-  #     - elasticsearch-server
-  #   environment:
-  #     - ELASTICSEARCH_HOSTS=http://elasticsearch-server:9200
