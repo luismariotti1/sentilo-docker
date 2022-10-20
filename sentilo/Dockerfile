@@ -74,3 +74,5 @@ EXPOSE 8081
 # mvn package appassembler:assemble -P dev
 # ##############################################################################
 
+
+# mvn clean install; mvn package appassembler:assemble -P dev
