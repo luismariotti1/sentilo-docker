@@ -10,16 +10,19 @@ const httpsAgent = new https.Agent({
 // configure axios
 const axiosInstance = axios.create({
   httpsAgent,
-  headers: {'IDENTITY_KEY': '42755a1e9a456c888480af5c889f34b3ddce3cb21d3f042a367fbf5ec5e5903f'}
+  headers: {'IDENTITY_KEY': '563093ec5252147edc8860c2d667be5db0c010325b6953ed5b323724bcc00e05'}
 });
 
 // every 2 seconds make a request to the api
 setInterval(() => {
   temp = randomInt(10, 40);
-  axiosInstance.put('https://localhost/data/utfpr/temp/'+temp)
+  axiosInstance.put('https://localhost/data/testApp_provider/temp/'+temp)
     .then(() => {
       console.log(temp);
     })
+    .catch((err) => {
+      console.log(err);
+    });
 }, 2000);
 
 randomInt = (min, max) => {
