@@ -1,38 +1,27 @@
 const axios = require('axios');
-const path = require('path');
 const https = require('https');
-const rootCas = require('ssl-root-cas').create();
 
 
-rootCas.addFile(path.resolve(__dirname, '../certs/ca/ca-cert.pem'));
-const httpsAgent = new https.Agent({ca: rootCas});
+// configure https agent to ignore self-signed certificate
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
 
-let newtemp = 38;
+// configure axios
+const axiosInstance = axios.create({
+  httpsAgent,
+  headers: {'IDENTITY_KEY': '42755a1e9a456c888480af5c889f34b3ddce3cb21d3f042a367fbf5ec5e5903f'}
+});
 
-const config = {
-  headers:{
-    'IDENTITY_KEY': '42755a1e9a456c888480af5c889f34b3ddce3cb21d3f042a367fbf5ec5e5903f'
-  }
-};
+// every 2 seconds make a request to the api
+setInterval(() => {
+  temp = randomInt(10, 40);
+  axiosInstance.put('https://localhost/data/utfpr/temp/'+temp)
+    .then(() => {
+      console.log(temp);
+    })
+}, 2000);
 
-axios.
-
-
-// repeat a request every 10 seconds
-setInterval(function () {
-  axios.get('https://localhost/data/utfpr/temp/'+newtemp, { httpsAgent })
-  .then(function (response) {
-    console.log(response);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
-}, 5000);
-
-
-// request(options, function (error, response) {
-//   if (error) throw new Error(error);
-//   console.log(options);
-//   newtemp = 38 + Math.floor(Math.random() * 7) - 3;;
-//   options.url = 'https://localhost/data/utfpr/temp/'+newtemp;
-// });
+randomInt = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
