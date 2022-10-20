@@ -4,9 +4,9 @@ let newtemp = 38;
 
 var options = {
   'method': 'PUT',
-  'url': 'http://localhost:8081/data/utfpr/temp/'+newtemp,
+  'url': 'https://localhost/data/utfpr/temp/'+newtemp,
   'headers': {
-    'IDENTITY_KEY': '1a4aaf7eb1eba806dad56ccfa00dadae0cbe002d6fd79dd32a442f97ac5249f9'
+    'IDENTITY_KEY': '42755a1e9a456c888480af5c889f34b3ddce3cb21d3f042a367fbf5ec5e5903f'
   }
 };
 
@@ -16,6 +16,6 @@ setInterval(function () {
     if (error) throw new Error(error);
     console.log(options);
     newtemp = 38 + Math.floor(Math.random() * 7) - 3;;
-    options.url = 'http://localhost:8081/data/utfpr/temp/'+newtemp;
+    options.url = 'https://localhost/data/utfpr/temp/'+newtemp;
   });
 }, 5000);
