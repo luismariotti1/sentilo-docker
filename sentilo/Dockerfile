@@ -49,10 +49,19 @@ RUN sed -i "s/opentsdb.url=http:\/\/127.0.0.1:4242/opentsdb.url=http:\/\/opentsd
 #configure elasticsearch for docker network
 RUN sed -i "s/.*catalog.mongodb.host=.*/catalog.mongodb.host=mongo-server/" sentilo-agent-activity-monitor/src/main/resources/properties/catalog-config.properties
 RUN sed -i "s/.*jedis.pool.host=.*/jedis.pool.host=redis-server/" sentilo-agent-activity-monitor/src/main/resources/properties/jedis-config.properties
-RUN sed -i "s/elasticsearch.url=http:\/\/localhost:9200/elasticsearch.url=https:\/\/es01:9200/g" sentilo-agent-activity-monitor/src/main/resources/properties/monitor-config.properties
+RUN sed -i "s/elasticsearch.url=http:\/\/localhost:9200/elasticsearch.url=http:\/\/agent-proxy:9000/g" sentilo-agent-activity-monitor/src/main/resources/properties/monitor-config.properties
 
 # execute permission for sentilo server
 RUN chmod +x sentilo-platform/sentilo-platform-server/target/appassembler/bin/sentilo-server
+
+# create folder to script
+RUN mkdir /sentilo/agents
+
+# copy script that run agents
+COPY agents.sh /sentilo/agents
+
+# give execute permission to script
+RUN chmod +x /sentilo/agents/agents.sh
 
 # supervisor conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
