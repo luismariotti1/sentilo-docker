@@ -8,7 +8,7 @@ services:
       - "mongo-server"
       - "redis-server"
     # volumes:
-    #   - sentilo_plataform:/sentilo
+      # - sentilo_plataform:/sentilo
 
   mongo-server:
     image: luismariotti1/sentilo-mongo
@@ -29,12 +29,12 @@ services:
     volumes:
       - redis_data:/data
 
-  # opentsdb-server:
-  #   build: opentsdb
-  #   image: luismariotti1/sentilo-opentsdb
-  #   container_name: sentilo_opentsdb
-  #   ports:
-  #     - 4242:4242
+  opentsdb-server:
+    build: opentsdb
+    image: luismariotti1/sentilo-opentsdb
+    container_name: sentilo_opentsdb
+    ports:
+      - 4242:4242
 
   nginx-proxy:
     image: nginx:latest

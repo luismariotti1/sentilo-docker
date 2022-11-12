@@ -55,13 +55,13 @@ RUN sed -i "s/elasticsearch.url=http:\/\/localhost:9200/elasticsearch.url=http:\
 RUN chmod +x sentilo-platform/sentilo-platform-server/target/appassembler/bin/sentilo-server
 
 # create folder to script
-RUN mkdir /sentilo/agents
+RUN mkdir /sentilo/persistence-agents
 
 # copy script that run agents
-COPY agents.sh /sentilo/agents
+COPY agents-install.sh /sentilo/persistence-agents
 
 # give execute permission to script
-RUN chmod +x /sentilo/agents/agents.sh
+RUN chmod +x /sentilo/persistence-agents/agents-install.sh
 
 # supervisor conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -71,17 +71,3 @@ CMD [ "/usr/bin/supervisord" ]
 
 EXPOSE 8080
 EXPOSE 8081
-
-
-# ##############################################################################
-# cd sentilo/sentilo-agent-activity-monitor/
-# mvn clean install
-# mvn package appassembler:assemble -P dev
-
-# cd ../sentilo-agent-historian/
-# mvn clean install
-# mvn package appassembler:assemble -P dev
-# ##############################################################################
-
-
-# mvn clean install; mvn package appassembler:assemble -P dev
