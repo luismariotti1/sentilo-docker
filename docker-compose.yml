@@ -7,8 +7,8 @@ services:
     depends_on:
       - "mongo-server"
       - "redis-server"
-    # volumes:
-      # - sentilo_plataform:/sentilo
+    volumes:
+      - sentilo_plataform:/sentilo
 
   mongo-server:
     image: luismariotti1/sentilo-mongo
@@ -122,7 +122,7 @@ services:
       - "./certs:/run/secrets/"
 
 volumes:
-  # sentilo_plataform:
+  sentilo_plataform:
   mongo_data:
   mongo_config:
   redis_data:

@@ -17,7 +17,8 @@ RUN apt-get clean && \
     vim
  
 # source code
-RUN git clone https://github.com/sentilo/sentilo.git .
+RUN git clone https://github.com/sentilo/sentilo.git . && \
+    git checkout v1.9.0
 
 # change permission for execute script
 RUN chmod +x -R scripts
@@ -26,7 +27,7 @@ RUN chmod +x -R scripts
 RUN sed -i "s/.*catalog.mongodb.host=.*/catalog.mongodb.host=mongo-server/" /sentilo/sentilo-agent-alert/src/main/resources/properties/catalog-config.properties
 RUN sed -i "s/.*catalog.mongodb.host=.*/catalog.mongodb.host=mongo-server/" /sentilo/sentilo-catalog-web/src/main/resources/properties/catalog-config.properties
 
-# configure redis for docker network
+# # configure redis for docker network
 RUN sed -i "s/.*jedis.pool.host=.*/jedis.pool.host=redis-server/" sentilo-platform/sentilo-platform-service/src/main/resources/properties/jedis-config.properties
 RUN sed -i "s/.*jedis.pool.host=.*/jedis.pool.host=redis-server/" sentilo-agent-alert/src/main/resources/properties/jedis-config.properties
 RUN sed -i "s/.*jedis.pool.host=.*/jedis.pool.host=redis-server/" sentilo-agent-relational/src/main/resources/properties/jedis-config.properties
